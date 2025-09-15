@@ -587,7 +587,7 @@
                         <li><a href="admin-dashboard.html">Dashboard</a></li>
                         <li>
                             <form class="logout-form" id="logout-form">
-                                <button type="submit" class="logout-btn">Logout</button>
+                                <button type="submit" class="logout-btn" id="logoutBtn">Logout</button>
                             </form>
                         </li>
                     </ul>
@@ -695,6 +695,15 @@
     </footer>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            console.log(isLoggedIn)
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                alert('Please log in to access this page.');
+                window.location.replace('admin-login.html');
+                return;
+            }
+        });
         // Database configuration
         const DB_NAME = 'Tractor-diseals';
         const DB_VERSION = 1;
@@ -738,14 +747,7 @@
         }
 
         // Check if user is logged in (simple session check)
-        function checkSession() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            if (!isLoggedIn) {
-                
-                
-            }
-            return true;
-        }
+        
 
         // Add diseal data to database
         function adddisealData(data) {
@@ -846,7 +848,7 @@
                 if (sessionTimer <= 0) {
                     clearInterval(timerInterval);
                     alert('Your session has expired. Please login again.');
-                    logout();
+                    
                 }
             }, 1000);
         }
@@ -1008,10 +1010,7 @@
         }
 
         // Logout function
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = 'admin-login.html';
-        }
+        
 
         // Real-time clock functionality
         function updateClock() {
@@ -1065,7 +1064,6 @@
         // Initialize application
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if user is logged in
-            if (!checkSession()) return;
             
             updateClock();
             startSessionTimer();
@@ -1156,6 +1154,12 @@
                     showMessage('Edit cancelled', 'success');
                 }
             });
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            window.location.replace('admin-login.html');
         });
     </script>
 </body>
