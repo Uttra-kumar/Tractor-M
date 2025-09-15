@@ -480,6 +480,15 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            console.log(isLoggedIn)
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                alert('Please log in to access this page.');
+                window.location.replace('admin-login.html');
+                return;
+            }
+        });
         // Database configuration
         const DB_NAME = 'Tractor-Users';
         const DB_VERSION = 1;
