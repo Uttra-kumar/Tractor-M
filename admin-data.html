@@ -652,10 +652,10 @@
                     </a>
                 </li>
                 <li>
-                    <a href="logout.html">
+                
                         <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
+                        <span id="logoutBtn">Logout</span>
+                    
                 </li>
             </ul>
         </aside>
@@ -695,6 +695,15 @@
     </footer>
     
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            console.log(isLoggedIn)
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                alert('Please log in to access this page.');
+                window.location.replace('admin-login.html');
+                return;
+            }
+        });
         // Database configuration
         const DB_NAME = 'Tractor-Users';
         const DB_VERSION = 1;
@@ -718,7 +727,7 @@
             const elapsedTime = currentTime - parseInt(loginTime);
             
             if (elapsedTime >= SESSION_DURATION) {
-                logout();
+                
                 return false;
             }
             
@@ -745,18 +754,7 @@
         
         // Update session timer display
         
-        // Logout function
-        function logout() {
-            clearInterval(sessionTimerInterval);
-            localStorage.removeItem('adminLoginTime');
-            localStorage.removeItem('isAdmin');
-            redirectToLogin();
-        }
         
-        // Redirect to login page
-        function redirectToLogin() {
-            window.location.href = 'admin-login.html';
-        }
         
         // Real-time clock functionality
         function updateClock() {
@@ -989,6 +987,12 @@
                     <p>Failed to load user data. Please try again.</p>
                 `;
             }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            window.location.replace('admin-login.html');
         });
     </script>
 </body>
