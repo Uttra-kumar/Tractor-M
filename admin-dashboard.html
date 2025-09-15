@@ -614,10 +614,10 @@
                     </a>
                 </li>
                 <li>
-                    <a href="admin-login.html">
+                    
                         <i class="fas fa-sign-out-alt"></i>
                         <span id="logoutBtn">Logout</span>
-                    </a>
+                    
                 </li>
             </ul>
         </aside>
@@ -772,10 +772,15 @@
     </footer>
     
     <script>
-        if (!localStorage.getItem('isLoggedIn') || localStorage.getItem('isLoggedIn') !== 'true') {
-            alert('Please log in to access this page.');
-            window.location.href = 'login.html';
-        }
+document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            console.log(isLoggedIn)
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                alert('Please log in to access this page.');
+                window.location.replace('admin-login.html');
+                return;
+            }
+        });
         // Session management variables
         function updateClock() {
             const now = new Date();
@@ -801,6 +806,12 @@
             
         }
         setInterval(updateClock, 1000);
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            window.location.replace('admin-login.html');
+        });
     </script>
 </body>
 
