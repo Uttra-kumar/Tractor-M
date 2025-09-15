@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Fleets - Tractor-M</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary: #2E7D32;
+      --primary-light: #4CAF50;
+      --primary-dark: #1B5E20;
+      --secondary: #FF9800;
+      --secondary-light: #FFC107;
+      --secondary-dark: #F57C00;
+      --text: #333333;
+      --text-light: #5a5a5a;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+    .header-bg {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    }
+    .table-header {
+      background-color: rgba(46, 125, 50, 0.1);
+    }
+    .user-id-badge {
+      background: linear-gradient(to right, var(--primary-light), var(--primary));
+    }
+    .stats-card {
+      background: linear-gradient(to right, var(--primary-light), var(--primary));
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+
+  <!-- Header -->
+  <div class="header-bg text-white rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center">
+    <div class="flex items-center">
+      <i class="fas fa-tractor text-3xl mr-3"></i>
+      <h1 class="text-2xl font-bold">User Fleets Dashboard - Tractor-M</h1>
+    </div>
+    <a href="admin-alluser.html" class="bg-white text-green-700 px-4 py-2 rounded-lg font-medium hover:bg-green-50">
+      <i class="fas fa-arrow-left mr-2"></i> Back to Users
+    </a>
+  </div>
+
+  <!-- User Info -->
+  <div class="bg-white rounded-lg shadow-md p-4 mb-6 flex items-center justify-between">
+    <div>
+      <div class="user-id-badge text-white px-4 py-2 rounded-full inline-block">
+        <i class="fas fa-user-circle mr-2"></i>
+        <span id="userId">Loading User ID...</span>
+      </div>
+    </div>
+    <div class="text-sm text-gray-500">
+      <i class="fas fa-info-circle mr-1"></i> Viewing fleet data for this user only
+    </div>
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="stats-card text-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-3xl font-bold" id="totalRecords">0</div>
+          <div class="text-sm opacity-90">Total Records</div>
+        </div>
+        <i class="fas fa-list-ol text-2xl opacity-80"></i>
+      </div>
+    </div>
+    <div class="stats-card text-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-3xl font-bold" id="totalHours">0</div>
+          <div class="text-sm opacity-90">Total Minutes</div>
+        </div>
+        <i class="fas fa-clock text-2xl opacity-80"></i>
+      </div>
+    </div>
+    <div class="stats-card text-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="text-3xl font-bold" id="avgHours">0</div>
+          <div class="text-sm opacity-90">Total Amount</div>
+        </div>
+        <i class="fas fa-chart-line text-2xl opacity-80"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fleet Table -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h2 class="text-xl font-semibold text-green-700">
+        <i class="fas fa-table mr-2"></i> Fleet Records
+      </h2>
+      <div class="text-sm text-gray-500">
+        Sorted by: <select id="sortSelect" class="ml-2 border rounded px-2 py-1">
+          <option value="date-desc">Date (Newest First)</option>
+          <option value="date-asc">Date (Oldest First)</option>
+          <option value="time-desc">Running Time (High to Low)</option>
+          <option value="time-asc">Running Time (Low to High)</option>
+        </select>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table id="fleetTable" class="min-w-full">
+        <thead class="table-header text-green-800">
+          <tr>
+            <th class="px-6 py-3 text-left font-semibold">ID</th>
+            <th class="px-6 py-3 text-left font-semibold">Name</th>
+            <th class="px-6 py-3 text-left font-semibold">Date</th>
+            <th class="px-6 py-3 text-left font-semibold">Day</th>
+            <th class="px-6 py-3 text-left font-semibold">Time</th>
+            <th class="px-6 py-3 text-left font-semibold">Running Time (Minutes)</th>
+            <th class="px-6 py-3 text-left font-semibold">Notes</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+    <div id="emptyState" class="hidden p-8 text-center">
+      <i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i>
+      <h3 class="text-lg font-medium text-gray-500">No fleet records found</h3>
+      <p class="text-gray-400">This user doesn't have any fleet data yet.</p>
+    </div>
+  </div>
+
+  <!-- Smart Calculator -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-semibold text-green-700 mb-4"><i class="fas fa-calculator mr-2"></i> Smart Calculator</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <input type="number" id="totalCal" placeholder="Total" class="border rounded px-3 py-2">
+      <input type="number" id="paidCalc" placeholder="Paid" class="border rounded px-3 py-2">
+      <input type="text" id="remainsCalc" placeholder="Remai" readonly class="border rounded px-3 py-2 bg-gray-100">
+    </div>
+  </div>
+
+  <!-- Payment Form -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-semibold text-green-700 mb-4"><i class="fas fa-money-bill-wave mr-2"></i> User Payments</h2>
+    <form id="paymentForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      <input type="text" id="gid" placeholder="G-Id" required class="border rounded px-3 py-2">
+      <input type="text" id="pname" placeholder="Name" required class="border rounded px-3 py-2">
+      <input type="number" id="paid" placeholder="Paid" required class="border rounded px-3 py-2">
+      <input type="number" id="remains" placeholder="Remains" required class="border rounded px-3 py-2">
+       <input type="number" id="totalVal" placeholder="Total" required class="border rounded px-3 py-2">
+      <button type="submit" class="col-span-1 md:col-span-4 bg-green-600 text-white py-2 rounded hover:bg-green-700">Save Payment</button>
+    </form>
+
+    <!-- Payment Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border">
+        <thead class="bg-green-100 text-green-800">
+          <tr>
+            <th class="px-4 py-2 border">G-Id</th>
+            <th class="px-4 py-2 border">Name</th>
+            <th class="px-4 py-2 border">Paid</th>
+            <th class="px-4 py-2 border">Remains</th>
+            <th class="px-4 py-2 border">Total</th>
+            <th class="px-4 py-2 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="paymentTable" class="text-center"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  // URL userId
+  const urlParams = new URLSearchParams(window.location.search);
+  const userId = urlParams.get("userId");
+  document.getElementById("userId").innerText = "User ID: " + userId;
+
+  // --- Smart Calculator ---
+  const totalCal = document.getElementById("totalCal");
+  const paidCalc = document.getElementById("paidCalc");
+  const remainsCalc = document.getElementById("remainsCalc");
+
+  function updateCalc() {
+    const total = parseFloat(totalCal.value) || 0;
+    const paid = parseFloat(paidCalc.value) || 0;
+    remainsCalc.value = total - paid;
+  }
+  totalCal.addEventListener("input", updateCalc);
+  paidCalc.addEventListener("input", updateCalc);
+
+  // --- IndexedDB for Payments ---
+  let db;
+  const DB_NAME = "Tractor-JM";
+  const STORE = "payments";
+  let editKey = null;
+
+  const req = indexedDB.open(DB_NAME, 1);
+  req.onupgradeneeded = e => {
+    db = e.target.result;
+    if (!db.objectStoreNames.contains(STORE)) {
+      db.createObjectStore(STORE, { keyPath: "id", autoIncrement: true });
+    }
+  };
+  req.onsuccess = e => { db = e.target.result; loadPayments(); };
+
+  const paymentForm = document.getElementById("paymentForm");
+  const paymentTable = document.getElementById("paymentTable");
+
+  paymentForm.onsubmit = e => {
+    e.preventDefault();
+    const record = {
+      gid: document.getElementById("gid").value,
+      name: document.getElementById("pname").value,
+      paid: parseFloat(document.getElementById("paid").value) || 0,
+      remains: parseFloat(document.getElementById("remains").value) || 0,
+      totalVal: parseFloat(document.getElementById("totalVal").value) || 0,
+    };
+    record.total = record.paid + record.remains;
+
+    const tx = db.transaction(STORE, "readwrite");
+    const store = tx.objectStore(STORE);
+
+    if (editKey) {
+      record.id = editKey;
+      store.put(record);
+    } else {
+      store.add(record);
+    }
+    tx.oncomplete = () => { paymentForm.reset(); editKey = null; loadPayments(); };
+  };
+
+  function loadPayments() {
+  const tx = db.transaction(STORE, "readonly");
+  const store = tx.objectStore(STORE);
+  const req = store.getAll();
+  req.onsuccess = (e) => {
+    paymentTable.innerHTML = "";
+    const all = e.target.result;
+
+    // ✅ Fix: match gid with userId
+    const filtered = all.filter(f => f.gid === userId);
+
+    // ✅ Fix: correct forEach usage
+    filtered.forEach(p => {
+      paymentTable.innerHTML += `
+        <tr>
+          <td class="border px-2 py-1">${p.gid}</td>
+          <td class="border px-2 py-1">${p.name}</td>
+          <td class="border px-2 py-1">${p.paid}</td>
+          <td class="border px-2 py-1">${p.remains}</td>
+          <td class="border px-2 py-1">${p.totalVal}</td>
+          <td class="border px-2 py-1">
+            <button onclick="editPayment(${p.id})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+            <button onclick="deletePayment(${p.id})" class="bg-red-600 text-white px-2 py-1 rounded">Delete</button>
+          </td>
+        </tr>`;
+    });
+  };
+}
+
+
+  window.editPayment = id => {
+    const tx = db.transaction(STORE, "readonly");
+    const store = tx.objectStore(STORE);
+    const req = store.get(id);
+    req.onsuccess = () => {
+      const p = req.result;
+      document.getElementById("gid").value = p.gid;
+      document.getElementById("pname").value = p.name;
+      document.getElementById("paid").value = p.paid;
+      document.getElementById("remains").value = p.remains;
+      document.getElementById("totalVal").value = p.totalVal;
+      editKey = p.id;
+    };
+  };
+
+  window.deletePayment = id => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = loadPayments;
+  };
+
+  // --- Existing Fleet Data (from Tractor-Fleets) ---
+  function loadFleetData() {
+    const request = indexedDB.open("Tractor-Fleets", 1);
+    request.onsuccess = function (event) {
+      const dbFleet = event.target.result;
+      const tx = dbFleet.transaction("fleet", "readonly");
+      const store = tx.objectStore("fleet");
+      store.getAll().onsuccess = e => {
+        const allFleets = e.target.result;
+        const fleets = allFleets.filter(f => f.gId === userId);
+        updateStats(fleets);
+        const sorted = sortFleets(fleets, document.getElementById("sortSelect").value);
+        renderFleetTable(sorted);
+      };
+    };
+  }
+
+  function updateStats(fleets) {
+    const totalRecords = fleets.length;
+    let totalHours = 0;
+    fleets.forEach(f => totalHours += parseFloat(f.runningTime) || 0);
+    document.getElementById("totalRecords").textContent = totalRecords;
+    document.getElementById("totalHours").textContent = totalHours.toFixed(2);
+    document.getElementById("avgHours").textContent = totalHours.toFixed(2)*15;
+  }
+
+  function sortFleets(fleets, sortBy) {
+    return [...fleets].sort((a, b) => {
+      switch(sortBy) {
+        case 'date-asc': return new Date(a.date) - new Date(b.date);
+        case 'date-desc': return new Date(b.date) - new Date(a.date);
+        case 'time-asc': return (parseFloat(a.runningTime) || 0) - (parseFloat(b.runningTime) || 0);
+        case 'time-desc': return (parseFloat(b.runningTime) || 0) - (parseFloat(a.runningTime) || 0);
+        default: return new Date(b.date) - new Date(a.date);
+      }
+    });
+  }
+
+  function renderFleetTable(fleets) {
+    const tbody = document.querySelector("#fleetTable tbody");
+    const emptyState = document.getElementById("emptyState");
+    tbody.innerHTML = "";
+    if (fleets.length === 0) {
+      emptyState.classList.remove("hidden");
+    } else {
+      emptyState.classList.add("hidden");
+      fleets.forEach(fleet => {
+        const row = document.createElement("tr");
+        row.className = "hover:bg-green-50 transition-colors";
+        row.innerHTML = `
+          <td class="px-6 py-4">${fleet.gId}</td>
+          <td class="px-6 py-4">${fleet.name}</td>
+          <td class="px-6 py-4">${fleet.date}</td>
+          <td class="px-6 py-4">${fleet.day}</td>
+          <td class="px-6 py-4">${fleet.time}</td>
+          <td class="px-6 py-4">${fleet.runningTime}</td>
+          <td class="px-6 py-4">${fleet.notes || '-'}</td>`;
+        tbody.appendChild(row);
+      });
+    }
+  }
+
+  document.getElementById("sortSelect").addEventListener("change", () => {
+    loadFleetData();
+  });
+
+  loadFleetData();
+</script>
+</body>
+</html>
