@@ -504,6 +504,7 @@
             if (adminId === ADMIN_CREDENTIALS.id && password === ADMIN_CREDENTIALS.password) {
                 // Successful login
                 localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('adminId', adminId);
                 startSessionTimer();
                 alert('Login successful! Redirecting to admin dashboard...');
                 // In a real application, you would redirect to admin-dashboard.html
