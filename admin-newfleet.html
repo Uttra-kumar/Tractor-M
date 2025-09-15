@@ -287,11 +287,11 @@
 
   // --- Existing Fleet Data (from Tractor-Fleets) ---
   function loadFleetData() {
-    const request = indexedDB.open("Tractor-Fleets", 1);
+    const request = indexedDB.open("Tractor-FT", 1);
     request.onsuccess = function (event) {
       const dbFleet = event.target.result;
-      const tx = dbFleet.transaction("fleet", "readonly");
-      const store = tx.objectStore("fleet");
+      const tx = dbFleet.transaction("flt", "readonly");
+      const store = tx.objectStore("flt");
       store.getAll().onsuccess = e => {
         const allFleets = e.target.result;
         const fleets = allFleets.filter(f => f.gId === userId);
