@@ -587,7 +587,7 @@
                         <li><a href="admin-dashboard.html">Dashboard</a></li>
                         <li>
                             <form class="logout-form" id="logout-form">
-                                <button type="submit" class="logout-btn">Logout</button>
+                                <button type="submit" class="logout-btn" id="logoutBtn">Logout</button>
                             </form>
                         </li>
                     </ul>
@@ -609,7 +609,7 @@
             <div class="summary-card">
                 <h3 class="summary-title">Total Payment</h3>
                 <div class="summary-value" id="total-running-time">0</div>
-                <div class="summary-unit">Payment</div>
+                <div class="summary-unit">Rupees</div>
             </div>
             
             <!-- payment Form -->
@@ -695,6 +695,15 @@
     </footer>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            console.log(isLoggedIn)
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                alert('Please log in to access this page.');
+                window.location.replace('admin-login.html');
+                return;
+            }
+        });
         // Database configuration
         const DB_NAME = 'Tractor-payments';
         const DB_VERSION = 1;
@@ -738,14 +747,7 @@
         }
 
         // Check if user is logged in (simple session check)
-        function checkSession() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            if (!isLoggedIn) {
-                
-                
-            }
-            return true;
-        }
+        
 
         // Add payment data to database
         function addpaymentData(data) {
@@ -846,7 +848,7 @@
                 if (sessionTimer <= 0) {
                     clearInterval(timerInterval);
                     alert('Your session has expired. Please login again.');
-                    logout();
+                    
                 }
             }, 1000);
         }
@@ -907,7 +909,7 @@
                         <td>${formattedDate}</td>
                         <td>${item.day}</td>
                         <td>${item.time}</td>
-                        <td>${item.runningTime} minutes</td>
+                        <td>${item.runningTime} Rupees</td>
                         <td>${item.notes || '-'}</td>
                         <td class="action-buttons">
                             <button class="action-btn edit-btn" data-id="${item.id}">Edit</button>
@@ -1065,7 +1067,7 @@
         // Initialize application
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if user is logged in
-            if (!checkSession()) return;
+            
             
             updateClock();
             startSessionTimer();
@@ -1156,6 +1158,12 @@
                     showMessage('Edit cancelled', 'success');
                 }
             });
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            window.location.replace('admin-login.html');
         });
     </script>
 </body>
