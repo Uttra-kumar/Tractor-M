@@ -731,14 +731,14 @@
             // Modal close button
             document.getElementById('modal-close').addEventListener('click', () => {
                 document.getElementById('user-id-modal').style.display = 'none';
-                window.location.href = 'user-auth.html';
+                window.location.href = 'user.html';
             });
             
             // Close modal when clicking outside
             document.getElementById('user-id-modal').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('user-id-modal')) {
                     document.getElementById('user-id-modal').style.display = 'none';
-                    window.location.href = 'user-auth.html';
+                    window.location.href = 'user.html';
                 }
             });
         });
