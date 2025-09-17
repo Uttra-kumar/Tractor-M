@@ -680,7 +680,23 @@
                     </tbody>
                 </table>
             </div>
-            
+               <div class="fleet-table">
+                <h3 class="form-title">Payment Records</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="new-payment">
+                        
+                </table>
+               </div>
             <div class="session-timer">
                 Session will expire in: <span class="timer-value" id="session-timer">10:00</span>
             </div>
@@ -1165,6 +1181,87 @@
             localStorage.removeItem('isLoggedIn');
             window.location.replace('admin-login.html');
         });
+
+        const DB_NAME2 = "Tractor-JM";
+const STORE_NAME2 = "payments";
+
+// 🔹 Open DB
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME2, DB_VERSION);
+
+        request.onupgradeneeded = function(e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME2)) {
+                db.createObjectStore(STORE_NAME2, { keyPath: "id", autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = e => resolve(e.target.result);
+        request.onerror = e => reject(e.target.error);
+    });
+}
+
+// 🔹 Get All Data
+async function getAllPaymentsM() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME2, "readonly");
+        const store = tx.objectStore(STORE_NAME2);
+        const req = store.getAll();
+
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = e => reject(e.target.error);
+    });
+}
+
+// 🔹 Delete Payment
+async function deletePaymentM(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME2, "readwrite");
+        const store = tx.objectStore(STORE_NAME2);
+        const req = store.delete(id);
+
+        req.onsuccess = () => {
+            loadPaymentsM(); // ✅ Refresh table after delete
+            resolve();
+        };
+        req.onerror = e => reject(e.target.error);
+    });
+}
+
+// 🔹 Load Data into Table
+async function loadPaymentsM() {
+    const data = await getAllPaymentsM();
+    console.log(data)
+    const tbody = document.getElementById("new-payment");
+    tbody.innerHTML = "";
+
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No records found</td></tr>`;
+        return;
+    }
+
+    data.forEach(item => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.paid}</td>
+            <td>${item.remains}</td>
+            <td>${item.totalVal} ₹</td>
+            <td>
+                <button class="action-btn delete-btn" onclick="deletePaymentM(${item.id})">Delete</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+// 🔹 Page Load par call karo
+window.onload = loadPaymentsM();
     </script>
 </body>
 </html>
